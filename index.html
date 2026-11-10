@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TuProfe20 Lab | Magnitudes Proporcionales</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        /* Prevenir scroll en toda la app */
+        body, html { margin: 0; padding: 0; overflow: hidden; width: 100vw; height: 100vh; user-select: none; background-color: #f8fafc; font-family: 'Nunito', sans-serif; }
+        
+        @keyframes floatUp { 
+            0% { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; } 
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; } 
+        }
+        @keyframes slideInRight { 
+            0% { opacity: 0; transform: translateX(20px); } 
+            100% { opacity: 1; transform: translateX(0); } 
+        }
+        @keyframes drawArrow {
+            from { stroke-dashoffset: 1000; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .animate-floatUp { animation: floatUp 15s linear infinite; }
+        .animate-slideInRight { animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes orbitSlow { 0% { transform: rotate(0deg) translateX(18px) rotate(0deg);} 100% { transform: rotate(360deg) translateX(18px) rotate(-360deg);} }
+        @keyframes driftWave { 0% { transform: translateX(-8%) translateY(0px);} 50% { transform: translateX(8%) translateY(16px);} 100% { transform: translateX(-8%) translateY(0px);} }
+        @keyframes twinklePulse { 0%,100% { opacity: .25; transform: scale(.95);} 50% { opacity: .7; transform: scale(1.12);} }
+
+        /* KaTeX Overrides para hacer los números GIGANTES en el paso actual y más legibles */
+        .katex { font-weight: 900 !important; }
+        
+        .math-enunciado .katex { font-size: clamp(1.08rem, 1.55vw, 1.35rem) !important; color: #1e293b !important; }
+        .math-history .katex { font-size: clamp(0.9rem, 1.2vw, 1.08rem) !important; color: #64748b !important; font-weight: 700 !important; }
+        .math-current .katex { font-size: clamp(1.08rem, 1.95vw, 2.05rem) !important; color: #2563eb !important; text-shadow: 2px 2px 0px rgba(255,255,255,0.8); }
+        .math-graphic .katex { font-size: clamp(1.05rem, 2vw, 2.15rem) !important; color: #0f172a !important; }
+        
+        .arrow-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawArrow 0.6s ease-out forwards;
+        }
+        
+        /* Macros visuales personalizados para cancelar */
+        .katex .cancel { position: relative; display: inline-block; }
+        .katex .cancel::after {
+            content: ''; position: absolute; left: -10%; top: 50%; width: 120%; height: 4px;
+            background-color: #ef4444; transform: rotate(-35deg); transform-origin: center;
+            border-radius: 2px; z-index: 10;
+        }
+        .katex .cancel-up::after { transform: rotate(35deg); background-color: #3b82f6; }
+        .katex .cancel-val { color: #ef4444; font-size: 0.5em; position: absolute; top: -1.6em; right: -0.8em; font-weight: 900; background: white; padding: 0 2px; border-radius: 4px; border: 1px solid #fca5a5; }
+        .katex .cancel-val-up { color: #3b82f6; font-size: 0.5em; position: absolute; bottom: -1.6em; right: -0.8em; font-weight: 900; background: white; padding: 0 2px; border-radius: 4px; border: 1px solid #93c5fd; }
+    
+        :root{color-scheme:light} html,body,#root{height:100%;width:100%;margin:0}body{background:#101b58!important;font-family:Nunito,sans-serif}button{cursor:pointer}button:disabled{cursor:not-allowed} .font-fun{font-family:Nunito,sans-serif}
+        @keyframes shine{0%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(280%) skewX(-18deg)}}
+        @keyframes bounceGlow{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        @keyframes popIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .glow-card{animation:popIn .4s ease both;transition:transform .2s,box-shadow .2s;isolation:isolate}.glow-card:hover{transform:translateY(-7px) scale(1.015);box-shadow:0 20px 36px #02061766}.glow-card:active{transform:scale(.97)}
+        .shimmer:after{content:'';position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,#ffffff40,transparent);animation:shine 4s linear infinite;pointer-events:none}
+        .work-surface{background-image:radial-gradient(#7187c026 1.1px,transparent 1.1px);background-size:20px 20px}
+        .math-current .katex{font-size:clamp(1rem,1.75vw,1.85rem)!important;color:#173cb8!important}.math-history .katex{font-size:clamp(.8rem,1.05vw,1.04rem)!important}.math-graphic .katex{font-size:clamp(1rem,1.7vw,2rem)!important}
+        .dynamic-grid{position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.2),transparent 24%),linear-gradient(120deg,rgba(255,255,255,.06),transparent 40%),repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 2px,transparent 2px 74px),repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 2px,transparent 2px 74px);mix-blend-mode:screen;opacity:.42;animation:driftWave 14s ease-in-out infinite}
+        .planet{position:absolute;border-radius:9999px;filter:blur(.2px);box-shadow:0 0 0 3px rgba(255,255,255,.08),0 18px 42px rgba(0,0,0,.22)}
+        .planet .ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(18deg);border:2px solid rgba(255,255,255,.28);border-left-color:transparent;border-right-color:transparent;border-radius:9999px;width:140%;height:44%}
+        .orbiter{position:absolute;width:8px;height:8px;border-radius:9999px;background:rgba(255,255,255,.7);animation:orbitSlow 7s linear infinite}
+        .scroller{scrollbar-width:thin;scrollbar-color:#818cf8 transparent}.katex-display{overflow-x:auto;overflow-y:hidden;padding:3px 0}
+        @media(max-width:850px){.game-main{flex-direction:column!important;overflow:auto!important}.game-main>.left{width:100%!important;min-height:330px!important}.game-main>.right{width:100%!important;min-height:420px!important}.game-shell{overflow:auto!important}.game-main .right .math-graphic .katex{font-size:1.4rem!important}}
+        @media(max-height:650px) and (min-width:850px){.game-main{padding:6px!important;gap:8px!important}.game-main>.left .question{padding:8px!important}.game-main>.left .steps{padding:12px!important}.game-main>.left .nav{padding:8px!important}}
+
+        @keyframes confettiExplosion { 
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; } 
+            80% { opacity: 1; } 
+            100% { transform: translate(var(--tx), var(--ty)) scale(0) rotate(var(--rot)); opacity: 0; } 
+        }
+        @keyframes jellyPop {
+            0% { transform: scale3d(.3, .3, .3); opacity: 0; }
+            20% { transform: scale3d(1.18, 1.18, 1.18); }
+            40% { transform: scale3d(.92, .92, .92); }
+            60% { transform: scale3d(1.06, 1.06, 1.06); opacity: 1; }
+            80% { transform: scale3d(.97, .97, .97); }
+            100% { transform: scale3d(1, 1, 1); opacity: 1; }
+        }
+        @keyframes fadeOutDelayed {
+            0% { opacity: 1; visibility: visible; }
+            60% { opacity: 1; visibility: visible; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+        @keyframes robotFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes robotThinkTilt { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(6deg) translateY(-3px); } }
+        @keyframes robotJump { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-15px); } }
+        @keyframes robotTalkArmL { 0%, 100% { transform: rotate(45deg); } 50% { transform: rotate(95deg); } }
+        @keyframes robotTalkArmR { 0%, 100% { transform: rotate(-45deg); } 50% { transform: rotate(-95deg); } }
+
+
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, memo } = React;
+
+        const Icon = ({ paths, className = "", size = 24, fill = "none", strokeWidth = "2.5" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{__html: paths}} />
+        );
+
+        const UndoIcon = (p) => <Icon {...p} paths='<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>' />;
+        const Home = (p) => <Icon {...p} paths='<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' />;
+        const Activity = (p) => <Icon {...p} paths='<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>' />;
+
+        const renderMath = (latex, element, displayMode = true) => {
+            if (!window.katex) return;
+            try { 
+                window.katex.render(latex, element, { 
+                    displayMode, throwOnError: false, strict: false, trust: true,
+                    macros: {
+                        "\\cancel": "\\htmlClass{cancel}{#1}",
+                        "\\bcancel": "\\htmlClass{cancel-up}{#1}",
+                        "\\cval": "\\htmlClass{cancel}{#1}^{\\htmlClass{cancel-val}{#2}}",
+                        "\\cvalup": "\\htmlClass{cancel-up}{#1}_{\\htmlClass{cancel-val-up}{#2}}"
+                    }
+                }); 
+            }
+            catch (e) { element.innerText = latex; }
+        };
+
+        const MathDisplay = memo(({ latex, className = "", inline = false }) => {
+            const containerRef = useRef(null);
+            useEffect(() => {
+                if (containerRef.current) renderMath(latex, containerRef.current, !inline);
+            }, [latex, inline]);
+            return inline ? <span ref={containerRef} className={`inline-block align-middle ${className}`} /> : <div className={`relative w-full flex ${className}`}><div ref={containerRef} className="w-full text-left" /></div>;
+        });
+
+        const AudioController = {
+            ctx: null, muted: false, bgmNode: null,
+            init: function() {
+                if (this.ctx) return;
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) this.ctx = new AudioContext();
+            },
+            startBGM: function() {
+                if (!this.ctx) return;
+                if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+                if (this.bgmNode) return;
+                const mainGain = this.ctx.createGain();
+                mainGain.gain.value = this.muted ? 0 : 0.035;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 1500;
+                filter.connect(mainGain);
+                mainGain.connect(this.ctx.destination);
+                this.bgmNode = { mainGain, filter };
+                // Melodía original: 80 bpm, timbres redondos y volumen de fondo.
+                const melody = [67, null, 71, 74, 76, null, 74, 71,
+                                64, null, 67, 71, 74, null, 71, 67,
+                                60, null, 64, 67, 72, null, 67, 64,
+                                62, null, 66, 69, 74, null, 69, 66];
+                const roots = [43, 40, 36, 38];
+                const note = (midi, time, duration, level, type) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+                    gain.gain.setValueAtTime(0, time);
+                    gain.gain.linearRampToValueAtTime(level, time + 0.025);
+                    gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+                    osc.connect(gain); gain.connect(filter);
+                    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+                    osc.start(time); osc.stop(time + duration + 0.03);
+                };
+                let beat = 0;
+                let nextTime = this.ctx.currentTime + 0.06;
+                const schedule = () => {
+                    if (this.ctx.state !== 'running') return;
+                    if (nextTime < this.ctx.currentTime) nextTime = this.ctx.currentTime + 0.04;
+                    while (nextTime < this.ctx.currentTime + 0.18) {
+                        const index = beat % melody.length;
+                        if (melody[index] !== null) note(melody[index], nextTime, 0.3, 0.32, 'triangle');
+                        if (index % 4 === 0) note(roots[Math.floor(index / 8)], nextTime, 1.1, 0.35, 'sine');
+                        beat++; nextTime += 60 / 80 / 2;
+                    }
+                };
+                schedule();
+                this.bgmNode.timer = setInterval(schedule, 60);
+            },
+            play: function(type) {
+                if (this.muted || !this.ctx) return;
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                const now = this.ctx.currentTime;
+                
+                if (type === 'pop') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(500, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                    gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now); osc.stop(now + 0.1);
+                } else if (type === 'pop-reverse') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(650, now); osc.frequency.exponentialRampToValueAtTime(280, now + 0.12);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now); osc.stop(now + 0.12);
+                } else if (type === 'success') {
+                    osc.disconnect();
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
+                        o.type = 'triangle'; o.frequency.value = freq;
+                        o.connect(g); g.connect(this.ctx.destination);
+                        const startTime = now + (i * 0.07);
+                        g.gain.setValueAtTime(0, startTime); g.gain.linearRampToValueAtTime(0.2, startTime + 0.04); g.gain.linearRampToValueAtTime(0, startTime + 0.35);
+                        o.start(startTime); o.stop(startTime + 0.35);
+                    });
+                } else if (type === 'swoosh') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(280, now); osc.frequency.exponentialRampToValueAtTime(70, now + 0.18);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+                    osc.start(now); osc.stop(now + 0.18);
+                }
+            },
+            toggleMute: function() { 
+                this.muted = !this.muted; 
+                if (this.bgmNode) {
+                    this.bgmNode.mainGain.gain.setTargetAtTime(this.muted ? 0 : 0.035, this.ctx.currentTime, 0.1);
+                }
+                return this.muted; 
+            }
+        };
+
+        const DrawingCanvas = () => {
+            const canvasRef = useRef(null);
+            const [isDrawing, setIsDrawing] = useState(false);
+            const [isDrawMode, setIsDrawMode] = useState(false);
+            const [tool, setTool] = useState('pen');
+            const [isSnapMode, setIsSnapMode] = useState(false);
+            const [penColor, setPenColor] = useState('#ef4444');
+            const [penWidth, setPenWidth] = useState(6);
+            const penPointsRef = useRef([]);
+            const activePointerRef = useRef(null);
+            const savedImageRef = useRef(null);
+            const startPosRef = useRef({ x: 0, y: 0 });
+            const historyRef = useRef([]);
+
+            const playPop = () => { AudioController.init(); AudioController.startBGM(); AudioController.play('pop'); };
+
+            const saveState = () => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                try {
+                    historyRef.current.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                    if (historyRef.current.length > 35) historyRef.current.shift();
+                } catch (e) {}
+            };
+
+            const undo = () => {
+                const canvas = canvasRef.current;
+                if (!canvas || historyRef.current.length === 0) return;
+                const ctx = canvas.getContext('2d');
+                const previous = historyRef.current.pop();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (previous) ctx.putImageData(previous, 0, 0);
+                AudioController.init();
+                AudioController.play('pop-reverse');
+            };
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas || !canvas.parentElement) return;
+
+                const updateSize = (entries) => {
+                    for (let entry of entries) {
+                        const { width, height } = entry.contentRect;
+                        const ctx = canvas.getContext('2d');
+                        let imgData = null;
+                        if (canvas.width > 0 && canvas.height > 0) {
+                            try { imgData = ctx.getImageData(0, 0, canvas.width, canvas.height); } catch (e) {}
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        if (imgData) ctx.putImageData(imgData, 0, 0);
+                    }
+                };
+
+                const observer = new ResizeObserver(updateSize);
+                observer.observe(canvas.parentElement);
+                return () => observer.disconnect();
+            }, []);
+
+            const hexToRgba = (hex, alpha) => {
+                const r = parseInt(hex.slice(1, 3), 16);
+                const g = parseInt(hex.slice(3, 5), 16);
+                const b = parseInt(hex.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            };
+
+            const renderPen = (points, straight = false) => {
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.putImageData(savedImageRef.current, 0, 0);
+                const angle = -15 * Math.PI / 180;
+                const c = Math.cos(angle), s = Math.sin(angle);
+                const local = points.map(p => ({ x: c * p.x + s * p.y, y: (-s * p.x + c * p.y) / 0.5 }));
+                ctx.save();
+                ctx.transform(c, s, -0.5 * s, 0.5 * c, 0, 0);
+                ctx.lineWidth = penWidth;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = penColor;
+                ctx.fillStyle = penColor;
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.beginPath();
+                ctx.moveTo(local[0].x, local[0].y);
+                if (local.length === 1) {
+                    ctx.arc(local[0].x, local[0].y, penWidth / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    if (!straight) {
+                        for (let i = 1; i < local.length - 1; i++) {
+                            const midpoint = { x: (local[i].x + local[i + 1].x) / 2, y: (local[i].y + local[i + 1].y) / 2 };
+                            ctx.quadraticCurveTo(local[i].x, local[i].y, midpoint.x, midpoint.y);
+                        }
+                    }
+                    const last = local[local.length - 1];
+                    ctx.lineTo(last.x, last.y);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            };
+
+            const startDrawing = (e) => {
+                if (!isDrawMode || activePointerRef.current !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const rect = canvas.getBoundingClientRect();
+
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                saveState();
+
+                if (tool === 'highlighter') {
+                    ctx.lineWidth = 24;
+                    ctx.strokeStyle = hexToRgba(penColor, 0.3);
+                    ctx.globalCompositeOperation = 'multiply';
+                } else {
+                    ctx.lineWidth = penWidth;
+                    ctx.strokeStyle = penColor;
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+
+                const startX = e.clientX - rect.left;
+                const startY = e.clientY - rect.top;
+                savedImageRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                startPosRef.current = { x: startX, y: startY };
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                penPointsRef.current = [{ x: startX, y: startY }];
+                activePointerRef.current = e.pointerId;
+                canvas.setPointerCapture(e.pointerId);
+                if (tool === 'pen') renderPen(penPointsRef.current);
+                setIsDrawing(true);
+            };
+
+            const draw = (e) => {
+                if (activePointerRef.current !== e.pointerId || !isDrawMode) return;
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const rect = canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                if (isSnapMode || e.shiftKey) {
+                    ctx.putImageData(savedImageRef.current, 0, 0);
+                    const dx = currentX - startPosRef.current.x;
+                    const dy = currentY - startPosRef.current.y;
+                    const angle = Math.atan2(dy, dx);
+                    const snappedAngle = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const snapX = startPosRef.current.x + Math.cos(snappedAngle) * dist;
+                    const snapY = startPosRef.current.y + Math.sin(snappedAngle) * dist;
+                    if (tool === 'pen') {
+                        renderPen([startPosRef.current, { x: snapX, y: snapY }], true);
+                        return;
+                    }
+                    ctx.beginPath();
+                    ctx.moveTo(startPosRef.current.x, startPosRef.current.y);
+                    ctx.lineTo(snapX, snapY);
+                    ctx.stroke();
+                } else {
+                    if (tool === 'pen') {
+                        const events = e.nativeEvent?.getCoalescedEvents?.() || [];
+                        const samples = events.length ? events : [e];
+                        samples.forEach(sample => penPointsRef.current.push({ x: sample.clientX - rect.left, y: sample.clientY - rect.top }));
+                        renderPen(penPointsRef.current);
+                        return;
+                    }
+                    if (tool === 'highlighter') ctx.putImageData(savedImageRef.current, 0, 0);
+                    ctx.lineTo(currentX, currentY);
+                    ctx.stroke();
+                }
+            };
+
+            const stopDrawing = () => {
+                const canvas = canvasRef.current;
+                const pointer = activePointerRef.current;
+                activePointerRef.current = null;
+                if (pointer !== null && canvas.hasPointerCapture(pointer)) canvas.releasePointerCapture(pointer);
+                if (isDrawing) {
+                    canvas.getContext('2d').closePath();
+                    setIsDrawing(false);
+                }
+            };
+
+            const selectTool = (nextTool) => {
+                stopDrawing();
+                playPop();
+                const enabled = nextTool !== 'selector' && !(isDrawMode && tool === nextTool);
+                setIsDrawMode(enabled);
+                if (nextTool !== 'selector') setTool(nextTool);
+            };
+
+            useEffect(() => {
+                const onKey = (event) => {
+                    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+                        event.preventDefault();
+                        undo();
+                        return;
+                    }
+                    if (event.key === 'Escape') {
+                        const pointer = activePointerRef.current;
+                        activePointerRef.current = null;
+                        if (pointer !== null && canvasRef.current.hasPointerCapture(pointer)) canvasRef.current.releasePointerCapture(pointer);
+                        setIsDrawing(false);
+                        setIsDrawMode(false);
+                    }
+                };
+                window.addEventListener('keydown', onKey);
+                return () => window.removeEventListener('keydown', onKey);
+            }, []);
+
+            const clearCanvas = () => {
+                playPop();
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                saveState();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            };
+
+            const colors = [
+                { name: 'Rojo', hex: '#ef4444', tw: 'bg-[#ef4444]' },
+                { name: 'Negro', hex: '#0f172a', tw: 'bg-[#0f172a]' },
+                { name: 'Azul', hex: '#3b82f6', tw: 'bg-[#3b82f6]' },
+                { name: 'Verde', hex: '#22c55e', tw: 'bg-[#22c55e]' },
+                { name: 'Amarillo', hex: '#facc15', tw: 'bg-[#facc15]' }
+            ];
+
+            return (
+                <>
+                    <div style={{zIndex: 120, pointerEvents: 'auto'}} className="absolute top-2 right-2 z-[120] flex flex-wrap max-w-[calc(100%-1rem)] justify-end gap-2 pointer-events-auto bg-white/82 p-1.5 rounded-xl backdrop-blur-sm shadow-md border border-slate-200">
+                        <button onClick={() => selectTool('selector')} aria-pressed={!isDrawMode} title="Seleccionar e interactuar (Esc)" className={`px-3 py-1.5 text-xs sm:text-sm font-black rounded-lg border-2 shadow-sm transition-all ${!isDrawMode ? 'bg-cyan-500 text-white border-cyan-600' : 'bg-white text-slate-600 border-slate-300'}`}>
+                            🖱️ Selector
+                        </button>
+                        <button onClick={() => selectTool('pen')} className={`px-3 py-1.5 text-xs sm:text-sm font-black rounded-lg border-2 shadow-sm transition-all ${isDrawMode && tool === 'pen' ? 'bg-indigo-500 text-white border-indigo-600 scale-105' : 'bg-white text-slate-600 border-slate-300'}`} aria-pressed={isDrawMode && tool === 'pen'} title="Lápiz Normal">
+                            🖊️ Lápiz
+                        </button>
+                        <button onClick={() => selectTool('highlighter')} aria-pressed={isDrawMode && tool === 'highlighter'} className={`px-3 py-1.5 text-xs sm:text-sm font-black rounded-lg border-2 shadow-sm transition-all ${isDrawMode && tool === 'highlighter' ? 'bg-yellow-400 text-slate-900 border-yellow-500 scale-105' : 'bg-white text-slate-600 border-slate-300'}`} title="Resaltador">
+                            🖍️ Resaltador
+                        </button>
+                        {isDrawMode && tool === 'pen' && (
+                            <label className="flex items-center gap-2 px-2 py-1 rounded-lg bg-white border-2 border-indigo-200 text-xs font-black text-slate-700">
+                                Grosor
+                                <input aria-label="Grosor del lápiz" type="range" min="3" max="16" step="1" value={penWidth} onChange={e => setPenWidth(Number(e.target.value))} className="w-20 accent-indigo-600" />
+                                <span className="w-9">{penWidth} px</span>
+                            </label>
+                        )}
+                        {isDrawMode && (
+                            <>
+                                <button onClick={() => { playPop(); setIsSnapMode(!isSnapMode); }} className={`px-3 py-1.5 text-xs sm:text-sm font-black rounded-lg border-2 shadow-sm transition-all ${isSnapMode ? 'bg-blue-500 text-white border-blue-600 scale-105' : 'bg-white text-slate-600 border-slate-300'}`} title="Trazar líneas rectas (también puedes mantener Shift)">
+                                    📐 Recto
+                                </button>
+                                <button onClick={undo} className="px-3 py-1.5 text-xs sm:text-sm font-black bg-white text-violet-700 border-2 border-violet-300 rounded-lg shadow-sm hover:bg-violet-50 active:scale-95 transition-all" title="Deshacer (Ctrl+Z)">
+                                    ↶ Ctrl+Z
+                                </button>
+                                <button onClick={clearCanvas} className="px-3 py-1.5 text-xs sm:text-sm font-black bg-white text-rose-600 border-2 border-rose-300 rounded-lg shadow-sm hover:bg-rose-50 active:scale-95 transition-all">
+                                    🗑️ Limpiar
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    {isDrawMode && (
+                        <div className="absolute top-1/2 right-4 -translate-y-1/2 z-[110] flex flex-col gap-3 p-2 bg-white/92 backdrop-blur-md rounded-xl border-[3px] border-slate-200 shadow-xl pointer-events-auto">
+                            {colors.map(c => (
+                                <button 
+                                    key={c.hex} 
+                                    onClick={() => { playPop(); setPenColor(c.hex); }}
+                                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] shadow-sm transition-all hover:scale-110 active:scale-95 ${c.tw} ${penColor === c.hex ? 'border-white outline outline-[3px] outline-slate-800 scale-110' : 'border-black/20'}`}
+                                    title={`Color ${c.name}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    <canvas
+                        ref={canvasRef}
+                        style={{ zIndex: 100, pointerEvents: isDrawMode ? 'auto' : 'none', touchAction: isDrawMode ? 'none' : 'auto' }}
+                        className={`absolute inset-0 z-[100] touch-none ${isDrawMode ? 'cursor-crosshair pointer-events-auto' : 'pointer-events-none'}`}
+                        onPointerDown={startDrawing}
+                        onPointerMove={draw}
+                        onPointerUp={e => { if (activePointerRef.current === e.pointerId) { draw(e); stopDrawing(); } }}
+                        onPointerLeave={e => { if (!e.currentTarget.hasPointerCapture(e.pointerId)) stopDrawing(); }}
+                        onLostPointerCapture={stopDrawing}
+                        onPointerCancel={stopDrawing}
+                    />
+                </>
+            );
+        };
+
+
+        // --- Gráfico de Magnitudes (3 Columnas con Gap real para flechas rojas vivas) ---
+        const ProportionalGraphic = memo(({ config }) => {
+            if (!config) return null;
+            const { type, cols, showLines, eq } = config;
+
+            if (eq && !cols) {
+                return (
+                    <div className="w-full h-full flex items-center justify-center animate-slideInRight p-3">
+                        <div className="text-center font-black bg-white/65 p-5 rounded-3xl border-[3px] border-dashed border-cyan-400 math-graphic shadow-lg max-w-[88%]">
+                            <MathDisplay latex={eq} />
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="w-full h-full flex items-center justify-center px-4 py-3">
+                    <div className="flex w-full max-w-[780px] justify-between items-stretch relative gap-3">
+                        
+                        {/* Columna Izquierda */}
+                        <div className="flex flex-col items-center justify-between gap-6 z-20 w-28 sm:w-32">
+                            <div className="font-black text-[11px] sm:text-sm px-3 py-1.5 rounded-xl text-center w-full bg-blue-100 text-blue-800 border-2 border-blue-200 uppercase shadow-sm leading-tight">
+                                {cols[0].name}
+                            </div>
+                            <div className="math-graphic font-black text-slate-800 bg-white border-[3px] border-slate-200 rounded-3xl w-full h-20 sm:h-24 flex items-center justify-center shadow-lg relative px-1">
+                                <MathDisplay inline latex={cols[0].val1} />
+                            </div>
+                            <div className="math-graphic font-black text-slate-800 bg-white border-[3px] border-slate-200 rounded-3xl w-full h-20 sm:h-24 flex items-center justify-center shadow-lg relative px-1">
+                                <MathDisplay inline latex={cols[0].val2} />
+                            </div>
+                        </div>
+
+                        {/* Columna Central (Solo Flechas) */}
+                        <div className="relative flex-1 mx-1 z-10 flex items-center justify-center pointer-events-none min-w-[70px]">
+                            {showLines && (
+                                <svg className="w-full h-full absolute inset-0 overflow-visible" preserveAspectRatio="none">
+                                    <defs>
+                                        <marker id="arrowRed" orient="auto" markerWidth="6" markerHeight="6" refX="5" refY="3">
+                                            <path d="M0,0 V6 L6,3 Z" fill="#ef4444" />
+                                        </marker>
+                                    </defs>
+                                    {type === 'directa' ? (
+                                        <>
+                                            <line x1="4%" y1="36%" x2="96%" y2="80%" stroke="#ef4444" strokeWidth="7" className="arrow-line drop-shadow-md" markerEnd="url(#arrowRed)" strokeLinecap="round" />
+                                            <line x1="4%" y1="80%" x2="96%" y2="36%" stroke="#ef4444" strokeWidth="7" className="arrow-line drop-shadow-md" markerEnd="url(#arrowRed)" strokeLinecap="round" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <line x1="4%" y1="36%" x2="96%" y2="36%" stroke="#ef4444" strokeWidth="7" className="arrow-line drop-shadow-md" markerEnd="url(#arrowRed)" strokeLinecap="round" />
+                                            <line x1="4%" y1="80%" x2="96%" y2="80%" stroke="#ef4444" strokeWidth="7" className="arrow-line drop-shadow-md" markerEnd="url(#arrowRed)" strokeLinecap="round" />
+                                        </>
+                                    )}
+                                </svg>
+                            )}
+                        </div>
+
+                        {/* Columna Derecha */}
+                        <div className="flex flex-col items-center justify-between gap-6 z-20 w-28 sm:w-32">
+                            <div className="font-black text-[11px] sm:text-sm px-3 py-1.5 rounded-xl text-center w-full bg-emerald-100 text-emerald-800 border-2 border-emerald-200 uppercase shadow-sm leading-tight">
+                                {cols[1].name}
+                            </div>
+                            <div className="math-graphic font-black text-slate-800 bg-white border-[3px] border-slate-200 rounded-3xl w-full h-20 sm:h-24 flex items-center justify-center shadow-lg relative px-1">
+                                <MathDisplay inline latex={cols[1].val1} />
+                            </div>
+                            <div className="math-graphic font-black text-slate-800 bg-white border-[3px] border-slate-200 rounded-3xl w-full h-20 sm:h-24 flex items-center justify-center shadow-lg relative px-1">
+                                <MathDisplay inline latex={cols[1].val2} />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        });
+
+        // --- Data de Ejercicios ---
+        const EXERCISES = [
+            { id: 1, title: "Regla Directa", subtitle: "Obreros y Pista", icon: "👷", color: "bg-cyan-100 text-cyan-700",
+              enunciado: () => <span>Si 40 obreros pueden hacer 20 m de una pista, ¿cuántos obreros serán necesarios para hacer 60 m de la misma pista en el mismo tiempo?</span>,
+              steps: [
+                  { latex: String.raw`\text{DP (Directamente Proporcional)}`, propertyText: "Análisis", graphic: { type: 'directa', cols: [{name: 'Obreros', val1: '40', val2: 'x'}, {name: 'Metros', val1: '20', val2: '60'}], showLines: false } },
+                  { latex: String.raw`20 \cdot x = 40 \cdot 60`, propertyText: "Esquema en Aspa", graphic: { type: 'directa', cols: [{name: 'Obreros', val1: '40', val2: 'x'}, {name: 'Metros', val1: '20', val2: '60'}], showLines: true } },
+                  { latex: String.raw`x = \frac{40 \cdot 60}{20}`, propertyText: "Despeje" },
+                  { latex: String.raw`x = \frac{40\cdot \cval{60}{3}}{\cvalup{20}{1}}`, propertyText: "Simplificar arriba con abajo" },
+                  { latex: String.raw`x = 40\cdot 3 = \mathbf{120}`, propertyText: "Multiplicar solo al final", graphic: { eq: String.raw`x = 120 \text{ obreros}` } }
+              ] },
+            { id: 2, title: "Regla Directa", subtitle: "Fábrica de Artículos", icon: "🏭", color: "bg-yellow-100 text-yellow-700",
+              enunciado: () => <span>Si en una fábrica 30 trabajadores pueden hacer 69 artículos, ¿cuántos artículos fabrican 50 trabajadores en el mismo tiempo?</span>,
+              steps: [
+                  { latex: String.raw`\text{DP (Más trabajadores, más artículos)}`, propertyText: "Análisis", graphic: { type: 'directa', cols: [{name: 'Trabajadores', val1: '30', val2: '50'}, {name: 'Artículos', val1: '69', val2: 'x'}], showLines: false } },
+                  { latex: String.raw`30 \cdot x = 50 \cdot 69`, propertyText: "Esquema en Aspa", graphic: { type: 'directa', cols: [{name: 'Trabajadores', val1: '30', val2: '50'}, {name: 'Artículos', val1: '69', val2: 'x'}], showLines: true } },
+                  { latex: String.raw`x = \frac{50 \cdot 69}{30}`, propertyText: "Despeje" },
+                  { latex: String.raw`x = \frac{\cval{50}{5}\cdot 69}{\cvalup{30}{3}}`, propertyText: "Simplificar arriba con abajo" },
+                  { latex: String.raw`x = \frac{5\cdot \cval{69}{23}}{\cvalup{3}{1}} = 5\cdot 23 = \mathbf{115}`, propertyText: "Multiplicar solo al final", graphic: { eq: String.raw`x = 115 \text{ artículos}` } }
+              ] },
+            { id: 3, title: "Regla Inversa", subtitle: "Obreros y Días", icon: "🏗️", color: "bg-emerald-100 text-emerald-700",
+              enunciado: () => <span>Si 75 obreros pueden hacer una obra en 20 días, ¿cuántos obreros serán necesarios para hacer la misma obra en 15 días?</span>,
+              steps: [
+                  { latex: String.raw`\text{IP (Menos días, más obreros)}`, propertyText: "Análisis", graphic: { type: 'inversa', cols: [{name: 'Obreros', val1: '75', val2: 'x'}, {name: 'Días', val1: '20', val2: '15'}], showLines: false } },
+                  { latex: String.raw`x \cdot 15 = 75 \cdot 20`, propertyText: "Esquema Paralelo", graphic: { type: 'inversa', cols: [{name: 'Obreros', val1: '75', val2: 'x'}, {name: 'Días', val1: '20', val2: '15'}], showLines: true } },
+                  { latex: String.raw`x = \frac{75 \cdot 20}{15}`, propertyText: "Despeje" },
+                  { latex: String.raw`x = \frac{\cval{75}{5}\cdot 20}{\cvalup{15}{1}}`, propertyText: "Simplificar arriba con abajo" },
+                  { latex: String.raw`x = 5\cdot 20 = \mathbf{100}`, propertyText: "Multiplicar solo al final", graphic: { eq: String.raw`x = 100 \text{ obreros}` } }
+              ] },
+            { id: 4, title: "Regla Inversa", subtitle: "Raciones de Soldados", icon: "🪖", color: "bg-red-100 text-red-700",
+              enunciado: () => <span>Un batallón tiene víveres para 28 días a razón de 3 raciones diarias. Si fueran 4 raciones diarias, ¿para cuántos días alcanzarán los víveres?</span>,
+              steps: [
+                  { latex: String.raw`\text{IP (Más raciones/día, menos días)}`, propertyText: "Análisis", graphic: { type: 'inversa', cols: [{name: 'Días', val1: '28', val2: 'x'}, {name: 'Raciones', val1: '3', val2: '4'}], showLines: false } },
+                  { latex: String.raw`x \cdot 4 = 28 \cdot 3`, propertyText: "Multiplicación Paralela", graphic: { type: 'inversa', cols: [{name: 'Días', val1: '28', val2: 'x'}, {name: 'Raciones', val1: '3', val2: '4'}], showLines: true } },
+                  { latex: String.raw`x = \frac{28 \cdot 3}{4}`, propertyText: "Despeje" },
+                  { latex: String.raw`x = \frac{\cval{28}{7}\cdot 3}{\cvalup{4}{1}}`, propertyText: "Simplificar arriba con abajo" },
+                  { latex: String.raw`x = 7\cdot 3 = \mathbf{21}`, propertyText: "Multiplicar solo al final", graphic: { eq: String.raw`x = 21 \text{ días}` } }
+              ] },
+            { id: 5, title: "Regla Inversa", subtitle: "Pollos y Comida", icon: "🐔", color: "bg-orange-100 text-orange-700",
+              enunciado: () => <span>15 pollos tienen ración para 30 días. Si se aumentan tres pollos, ¿para cuántos días alcanzará la ración anterior?</span>,
+              steps: [
+                  { latex: String.raw`\text{Total Pollos} = 15 + 3 = 18`, propertyText: "Dato Inicial", graphic: { type: 'inversa', cols: [{name: 'Pollos', val1: '15', val2: '18'}, {name: 'Días', val1: '30', val2: 'x'}], showLines: false } },
+                  { latex: String.raw`18 \cdot x = 15 \cdot 30`, propertyText: "Esquema IP", graphic: { type: 'inversa', cols: [{name: 'Pollos', val1: '15', val2: '18'}, {name: 'Días', val1: '30', val2: 'x'}], showLines: true } },
+                  { latex: String.raw`x = \frac{15 \cdot 30}{18}`, propertyText: "Despeje" },
+                  { latex: String.raw`x = \frac{\cval{15}{5}\cdot 30}{\cvalup{18}{6}}`, propertyText: "Simplificar arriba con abajo" },
+                  { latex: String.raw`x = \frac{5\cdot \cval{30}{5}}{\cvalup{6}{1}} = 5\cdot 5 = \mathbf{25}`, propertyText: "Multiplicar solo al final", graphic: { eq: String.raw`x = 25 \text{ días}` } }
+              ] },
+            { id: 6, title: "Regla Directa", subtitle: "Hombres y Mujeres", icon: "👫", color: "bg-fuchsia-100 text-fuchsia-700",
+              enunciado: () => <span>A una fiesta asistieron 640 personas. Si se sabe que por cada 10 hombres, habían 22 mujeres, ¿cuántos hombres asistieron a la reunión?</span>,
+              steps: [
+                  { latex: String.raw`\text{Total Grupo} = 10 + 22 = 32`, propertyText: "Agrupación", graphic: { type: 'directa', cols: [{name: 'Total', val1: '32', val2: '640'}, {name: 'Hombres', val1: '10', val2: 'x'}], showLines: false } },
+                  { latex: String.raw`32 \cdot x = 640 \cdot 10`, propertyText: "Esquema DP", graphic: { type: 'directa', cols: [{name: 'Total', val1: '32', val2: '640'}, {name: 'Hombres', val1: '10', val2: 'x'}], showLines: true } },
+                  { latex: String.raw`x = \frac{640 \cdot 10}{32}`, propertyText: "Despeje" },
+                  { latex: String.raw`x = \frac{\cval{640}{20}\cdot 10}{\cvalup{32}{1}}`, propertyText: "Simplificar arriba con abajo" },
+                  { latex: String.raw`x = 20\cdot 10 = \mathbf{200}`, propertyText: "Multiplicar solo al final", graphic: { eq: String.raw`x = 200 \text{ hombres}` } }
+              ] },
+            { id: 7, title: "Regla Directa", subtitle: "Caballos y Pasto", icon: "🐴", color: "bg-green-100 text-green-700",
+              enunciado: () => <span>Para poder alimentar a los 45 caballos que tengo se necesitan 25 kg de pasto, ¿cuántos caballos deberían tener para alimentarlos con 15 kg?</span>,
+              steps: [
+                  { latex: String.raw`\text{DP (Menos pasto, menos caballos)}`, propertyText: "Análisis", graphic: { type: 'directa', cols: [{name: 'Caballos', val1: '45', val2: 'x'}, {name: 'Pasto', val1: '25', val2: '15'}], showLines: false } },
+                  { latex: String.raw`25 \cdot x = 45 \cdot 15`, propertyText: "Esquema en Aspa", graphic: { type: 'directa', cols: [{name: 'Caballos', val1: '45', val2: 'x'}, {name: 'Pasto', val1: '25', val2: '15'}], showLines: true } },
+                  { latex: String.raw`x = \frac{45 \cdot 15}{25}`, propertyText: "Despeje" },
+                  { latex: String.raw`x = \frac{45\cdot \cval{15}{3}}{\cvalup{25}{5}}`, propertyText: "Simplificar arriba con abajo" },
+                  { latex: String.raw`x = \frac{\cval{45}{9}\cdot 3}{\cvalup{5}{1}} = 9\cdot 3 = \mathbf{27}`, propertyText: "Multiplicar solo al final", graphic: { eq: String.raw`x = 27 \text{ caballos}` } }
+              ] },
+            { id: 8, title: "Regla Inversa", subtitle: "Ruedas Girando", icon: "⚙️", color: "bg-blue-100 text-blue-700",
+              enunciado: () => <span>Una rueda de diámetro D y otra de diámetro D/3 parten juntas. Cuando la mayor da 9 vueltas, ¿cuántas vueltas da la rueda menor?</span>,
+              steps: [
+                  { latex: String.raw`\text{IP (Menor tamaño, más vueltas)}`, propertyText: "Análisis", graphic: { type: 'inversa', cols: [{name: 'Diámetro', val1: 'D', val2: 'D/3'}, {name: 'Vueltas', val1: '9', val2: 'x'}], showLines: false } },
+                  { latex: String.raw`(D/3) \cdot x = D \cdot 9`, propertyText: "Esquema Paralelo", graphic: { type: 'inversa', cols: [{name: 'Diámetro', val1: 'D', val2: 'D/3'}, {name: 'Vueltas', val1: '9', val2: 'x'}], showLines: true } },
+                  { latex: String.raw`x = \frac{9 \cdot D}{D/3} = \frac{27 \cdot D}{D}`, propertyText: "Álgebra Básica" },
+                  { latex: String.raw`x = \frac{27 \cdot \cancel{D}}{\cancel{D}}`, propertyText: "Cancelar factores comunes" },
+                  { latex: String.raw`x = \mathbf{27}`, propertyText: "Resultado después de simplificar", graphic: { eq: String.raw`x = 27 \text{ vueltas}` } }
+              ] },
+            { id: 9, title: "Lógica", subtitle: "Monos y Plátanos", icon: "🐒", color: "bg-amber-100 text-amber-700",
+              enunciado: () => <span>Cinco monos comen 5 plátanos en 5 minutos. ¿Cuánto tiempo se demorarán 3 monos en comerse 3 plátanos?</span>,
+              steps: [
+                  { latex: String.raw`\frac{\text{Monos} \times \text{Tiempo}}{\text{Plátanos}} = K`, propertyText: "Fórmula de Obra", graphic: { eq: String.raw`\frac{\text{M} \times \text{T}}{\text{P}} = K` } },
+                  { latex: String.raw`\frac{5 \cdot 5}{5} = \frac{3 \cdot x}{3}`, propertyText: "Reemplazando", graphic: { eq: String.raw`\frac{5 \cdot 5}{5} = \frac{3 \cdot x}{3}` } },
+                  { latex: String.raw`\frac{\cancel{5} \cdot 5}{\cancel{5}} = \frac{\cancel{3} \cdot x}{\cancel{3}}`, propertyText: "Simplificación", graphic: { eq: String.raw`\frac{\cancel{5} \cdot 5}{\cancel{5}} = \frac{\cancel{3} \cdot x}{\cancel{3}}` } },
+                  { latex: String.raw`x = \mathbf{5}`, propertyText: "Respuesta Constante", graphic: { eq: String.raw`x = 5 \text{ minutos}` } }
+              ] },
+            { id: 10, title: "Regla Inversa", subtitle: "Gallinas Hambrientas", icon: "🐓", color: "bg-purple-100 text-purple-700",
+              enunciado: () => <span>Un grupo de gallinas tiene alimentos para 12 días, pero si hubiera 3 gallinas más, durarían solo 8 días, ¿cuántas gallinas se tiene?</span>,
+              steps: [
+                  { latex: String.raw`\text{Gallinas: } x \to x+3`, propertyText: "Planteo (IP)", graphic: { type: 'inversa', cols: [{name: 'Gallinas', val1: 'x', val2: 'x+3'}, {name: 'Días', val1: '12', val2: '8'}], showLines: false } },
+                  { latex: String.raw`12 \cdot x = 8 \cdot (x+3)`, propertyText: "Multiplicación Paralela", graphic: { type: 'inversa', cols: [{name: 'Gallinas', val1: 'x', val2: 'x+3'}, {name: 'Días', val1: '12', val2: '8'}], showLines: true } },
+                  { latex: String.raw`\cval{12}{3}x = \cval{8}{2}(x+3)`, propertyText: "Dividir ambos miembros entre 4", graphic: { eq: String.raw`3x = 2(x+3)` } },
+                  { latex: String.raw`3x = 2x + 6 \implies x = \mathbf{6}`, propertyText: "Ecuación Lineal", graphic: { eq: String.raw`x = 6 \text{ gallinas}` } }
+              ] }
+        ];
+
+        const FloatingBackground = memo(() => {
+            const symbols = ['∑','π','×','÷','∞','√','≠','%','∆','x²','∝','≡','f(x)','a:b'];
+            return <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+              <div className="dynamic-grid" />
+              {Array.from({length:30},(_,i)=><span key={`sym-${i}`} className="absolute font-black animate-floatUp" style={{left:`${(i*43+7)%100}%`,top:'100%',animationDuration:`${17+i%9*3}s`,animationDelay:`-${i*1.8}s`,fontSize:`${18+i%4*10}px`,color:['#fef08a','#67e8f9','#f9a8d4','#c4b5fd'][i%4],opacity:.2}}>{symbols[i%symbols.length]}</span>)}
+              {Array.from({length:12},(_,i)=><span key={`tw-${i}`} className="absolute text-white font-black" style={{left:`${(i*29+11)%100}%`,top:`${(i*17+9)%100}%`,fontSize:`${8+i%3*4}px`,opacity:.55,animation:`twinklePulse ${4+i%4}s ease-in-out infinite`,animationDelay:`-${i*.7}s`}}>✦</span>)}
+              <div className="planet" style={{left:'6%',top:'10%',width:'92px',height:'92px',background:'radial-gradient(circle at 35% 35%,#fde68a,#f59e0b 65%,#7c2d12)'}}><div className="ring"/><div className="orbiter" style={{left:'50%',top:'50%'}}/></div>
+              <div className="planet" style={{right:'8%',bottom:'11%',width:'126px',height:'126px',background:'radial-gradient(circle at 30% 30%,#93c5fd,#2563eb 68%,#312e81)'}}><div className="ring" style={{transform:'translate(-50%,-50%) rotate(-18deg)'}}/></div>
+              <div className="absolute top-[15%] left-[6%] h-64 w-64 rounded-full bg-fuchsia-500/20 blur-3xl"/>
+              <div className="absolute bottom-[6%] right-[8%] h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl"/>
+            </div>;
+        });
+        const PALETTES = [
+          ['#2563eb','#06b6d4'],['#7c3aed','#ec4899'],['#ea580c','#fbbf24'],['#059669','#06b6d4'],['#e11d48','#f97316'],['#9333ea','#6366f1'],['#0d9488','#84cc16'],['#4f46e5','#38bdf8'],['#be185d','#fb7185'],['#d97706','#f59e0b']
+        ];
+        const Confetti = () => <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden" aria-hidden="true">{Array.from({length:45},(_,i)=><i key={i} className="absolute animate-confettiExplosion" style={{left:`${(i*59+13)%100}%`,top:`${(i*23+9)%90}%`,width:7+i%3*3,height:7+i%4*3,background:['#facc15','#22d3ee','#f472b6','#a78bfa','#34d399'][i%5],borderRadius:i%2?'50%':'2px','--tx':`${i%2?110:-110}px`,'--ty':`${50+i%7*22}px`,'--rot':`${i*31}deg`,animationDelay:`${i%11*0.06}s`}}/>)}</div>;
+        function App(){
+          const [view,setView]=useState('home'),[exIdx,setExIdx]=useState(0),[step,setStep]=useState(0),[muted,setMuted]=useState(false),[music,setMusic]=useState(false);
+          const scrollRef=useRef(null),curEx=EXERCISES[exIdx],maxSteps=curEx.steps.length-1;
+          const sound=(type='pop')=>{AudioController.init();AudioController.play(type)};
+          const toggleMute=()=>{AudioController.init();setMuted(AudioController.toggleMute())};
+          const toggleMusic=()=>{AudioController.init();if(!music){AudioController.startBGM();setMusic(true)}else{if(AudioController.bgmNode){AudioController.bgmNode.mainGain.gain.value=0;clearInterval(AudioController.bgmNode.timer);AudioController.bgmNode=null}setMusic(false)}};
+          const selectExercise=(idx)=>{AudioController.init();if(!music){AudioController.startBGM();setMusic(true)}sound('swoosh');setExIdx(idx);setStep(0);setView('lab')};
+          const next=()=>{if(step<maxSteps){setStep(step+1);sound(step+1===maxSteps?'success':'pop')}else if(exIdx<EXERCISES.length-1)selectExercise(exIdx+1);else{setView('home');sound('success')}};
+          const prev=()=>{if(step>0){setStep(step-1);sound('pop-reverse')}};
+          useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=scrollRef.current.scrollHeight},[step,exIdx,view]);
+          useEffect(()=>{const onKey=e=>{if(e.target.closest('input,textarea'))return;if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();if(view==='lab')next()}if(e.key==='ArrowLeft'&&view==='lab'){e.preventDefault();prev()}if(e.key==='Escape'&&view==='lab'&&!e.target.closest('canvas')){setView('home')}};window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey)},[view,step,exIdx]);
+          const getGraphic=()=>{for(let i=step;i>=0;i--)if(curEx.steps[i].graphic)return curEx.steps[i].graphic;return null};
+          const color=PALETTES[exIdx%PALETTES.length];
+          const audioControls=<div className="flex items-center gap-2"><button title="Activar o desactivar música" onClick={toggleMusic} className="px-3 py-2 bg-white/15 hover:bg-white/30 border border-white/30 rounded-xl text-white font-black text-sm">{music?'♫ Música ON':'♫ Música OFF'}</button><button title="Activar o silenciar sonidos" onClick={toggleMute} className="px-3 py-2 bg-white/15 hover:bg-white/30 border border-white/30 rounded-xl text-white font-black">{muted?'🔇':'🔊'}</button></div>;
+          if(view==='home')return <div className="relative w-full h-[100dvh] overflow-y-auto scroller bg-gradient-to-br from-[#0b2465] via-[#5126a2] to-[#b61577] font-fun">
+              <FloatingBackground/>
+              <div className="relative z-10 max-w-[1550px] mx-auto p-4 md:p-7 min-h-full flex flex-col">
+                <header className="flex justify-between items-center gap-2"><span className="inline-flex items-center gap-2 bg-white/15 text-amber-300 rounded-2xl px-4 py-2 border-2 border-amber-300/60 shadow-xl font-black tracking-wider">🚀 TuProfe20 Lab</span>{audioControls}</header>
+                <div className="text-center mt-5 mb-5"><div className="inline-block rounded-full px-5 py-1 border border-cyan-200/50 text-cyan-100 bg-white/10 font-extrabold tracking-[.2em] uppercase text-xs sm:text-sm">Laboratorio matemático interactivo</div><h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white uppercase tracking-tight mt-3 leading-[1.06] drop-shadow-[0_5px_0_rgba(0,0,0,.25)]">Magnitudes <span className="text-yellow-300">Proporcionales</span></h1><p className="text-indigo-100 text-base md:text-xl font-bold mt-3">Explora, analiza y resuelve paso a paso con esquemas dinámicos</p></div>
+                <div className="flex items-center justify-between bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl px-5 py-3 mb-4 text-white"><strong className="text-sm md:text-base">🎯 Selecciona un reto para comenzar</strong><span className="font-black text-amber-300 text-sm">{EXERCISES.length} retos disponibles</span></div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 pb-6">{EXERCISES.map((ex,i)=><button key={ex.id} onClick={()=>selectExercise(i)} className="glow-card shimmer relative rounded-[1.5rem] p-3 md:p-4 overflow-hidden text-white text-left border-[3px] border-white/50 shadow-xl min-h-[156px] lg:min-h-[185px] flex flex-col" style={{background:`linear-gradient(135deg,${PALETTES[i%10][0]},${PALETTES[i%10][1]})`,animationDelay:`${i*.04}s`}}><div className="flex justify-between items-start gap-2"><span className="text-xs font-black bg-black/25 rounded-lg px-2 py-1">RETO {i+1}</span><span className="text-xs font-black rounded-lg bg-white/20 px-2 py-1">{ex.steps.length} pasos</span></div><div className="flex-1 flex justify-center items-center text-5xl md:text-6xl drop-shadow-lg" style={{animation:'bounceGlow 3.5s ease-in-out infinite',animationDelay:`${i*.2}s`}}>{ex.icon}</div><strong className="text-sm lg:text-base text-center leading-snug drop-shadow-md">{ex.subtitle}</strong><div className="mt-2 h-1 bg-white/30 rounded-full overflow-hidden"><div className="h-full bg-white/80 w-[35%] rounded-full"/></div></button>)}</div>
+              </div>
+          </div>;
+          const visible=curEx.steps.slice(Math.max(0,step-2),step+1),offset=Math.max(0,step-2);
+          return <div className="game-shell relative w-full h-[100dvh] flex flex-col overflow-hidden bg-gradient-to-br from-[#102966] via-[#302477] to-[#7b205e] font-fun"><FloatingBackground/>{step===maxSteps&&<Confetti/>}
+            <header className="relative z-40 flex-none flex items-center justify-between gap-2 p-2 md:px-5 md:py-3"><button onClick={()=>{sound('swoosh');setView('home')}} className="bg-white/15 border-2 border-white/40 hover:bg-white/30 rounded-xl text-white px-3 py-2 font-black text-sm md:text-base">⌂ Portada</button><div className="flex gap-1 bg-black/20 border border-white/20 rounded-xl p-1 max-w-[57vw] overflow-x-auto scroller">{EXERCISES.map((ex,i)=><button key={ex.id} onClick={()=>selectExercise(i)} className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg font-black transition-all ${i===exIdx?'bg-yellow-300 text-slate-900 scale-105 shadow-[0_0_18px_#fde047]':'bg-white/15 text-white hover:bg-white/30'}`}>{i+1}</button>)}</div>{audioControls}</header>
+            <div className="relative z-10 text-center text-white px-3 mb-2"><div className="inline-flex items-center gap-3 bg-white/10 border border-white/25 rounded-xl px-4 py-1"><span className="text-lg">{curEx.icon}</span><strong className="text-sm md:text-lg">Reto {exIdx+1} · {curEx.subtitle}</strong><span className="bg-yellow-300 text-slate-950 px-2 py-0.5 rounded-lg text-xs font-black">{step+1}/{curEx.steps.length}</span></div></div>
+            <main className="game-main relative z-10 flex flex-row flex-1 min-h-0 px-3 pb-3 md:px-5 md:pb-5 gap-3">
+              <section className="left w-[48%] min-h-0 flex flex-col gap-2.5">
+                <div className="question relative shrink-0 bg-gradient-to-r from-[#fef08a] to-[#fed7aa] border-[3px] border-white shadow-lg p-3.5 rounded-[1.35rem]"><span className="inline-block bg-[#7c2d12] rounded-lg px-3 py-1 text-yellow-100 text-[11px] uppercase font-black tracking-widest mb-2">📘 Enunciado</span><div className="text-slate-900 text-sm md:text-[1rem] font-extrabold leading-snug math-enunciado">{curEx.enunciado()}</div></div>
+                <div className="steps work-surface flex-1 min-h-0 bg-[#fdfdff] rounded-[1.35rem] border-[3px] border-cyan-200 shadow-xl p-3 md:p-4 overflow-y-auto scroller" ref={scrollRef}><div className="flex justify-between items-center mb-2"><strong className="text-indigo-800 text-sm md:text-base">✦ Resolución guiada</strong><span className="text-[11px] font-extrabold text-indigo-500">PASO A PASO</span></div>{visible.map((s,i)=>{const ri=offset+i,isCurrent=ri===step;return <div key={ri} className={`${isCurrent?'animate-slideInRight bg-gradient-to-r from-blue-50 to-fuchsia-50 border-2 border-indigo-200 rounded-2xl p-2.5 my-2 shadow-md':'px-2.5 py-2 opacity-70 border-b border-slate-200'}`}><div className={`uppercase tracking-wider font-black mb-1 ${isCurrent?'text-indigo-700 text-[11px] md:text-xs':'text-slate-500 text-[10px]'}`}> {isCurrent?'▶ ':''}PASO {ri+1} · {s.propertyText}</div><div className={`overflow-x-auto ${isCurrent?'math-current':'math-history'}`}><MathDisplay latex={s.latex}/></div></div>})}</div>
+                <div className="nav shrink-0 flex gap-2"><button onClick={prev} disabled={step===0} className="w-[32%] bg-white disabled:opacity-40 text-indigo-900 border-2 border-white font-black px-3 py-2.5 rounded-xl shadow-lg hover:bg-cyan-100">◀ Anterior</button><button onClick={next} className="flex-1 text-white border-2 border-white/60 font-black px-3 py-2.5 rounded-xl shadow-lg hover:brightness-110 active:scale-[.98] transition" style={{background:`linear-gradient(110deg,${color[0]},${color[1]})`}}>{step<maxSteps?'Siguiente paso ▶':exIdx<EXERCISES.length-1?'Siguiente reto ➜':'Finalizar ✓'}</button></div>
+              </section>
+              <section className="right w-[52%] min-h-0 flex flex-col overflow-hidden relative bg-gradient-to-b from-white to-cyan-50 rounded-[1.35rem] shadow-2xl border-[3px] border-white"><div className="shrink-0 py-2.5 px-4 bg-gradient-to-r from-indigo-700 via-blue-600 to-cyan-500 text-white shadow-lg flex items-center justify-between"><strong className="tracking-wider text-[11px] md:text-sm uppercase">📐 Esquema visual interactivo</strong><span className="text-[11px] font-bold bg-white/20 rounded-lg px-2 py-1 hidden lg:block">Usa el lápiz para explicar</span></div><div className="flex-1 relative min-h-0"><ProportionalGraphic config={getGraphic()}/></div></section>
+              <DrawingCanvas key={exIdx}/>
+            </main>
+          </div>
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
